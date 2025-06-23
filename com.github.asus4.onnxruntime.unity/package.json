@@ -10,7 +10,7 @@
   "unity": "2022.3",
   "unityRelease": "0f1",
   "dependencies": {
-    "com.github.asus4.onnxruntime": "0.4.0"
+    "com.github.asus4.onnxruntime": "file:/Users/sur/Personal/Projects/ML/onnxruntime-unity.git/com.github.asus4.onnxruntime"
   },
   "repository": {
     "type": "git",

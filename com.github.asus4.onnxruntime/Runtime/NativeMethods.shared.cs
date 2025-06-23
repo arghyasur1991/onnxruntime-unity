@@ -312,6 +312,10 @@ namespace Microsoft.ML.OnnxRuntime
         public IntPtr UpdateROCMProviderOptions;
         public IntPtr GetROCMProviderOptionsAsString;
         public IntPtr ReleaseROCMProviderOptions;
+        public IntPtr CreateCoreMLProviderOptions;
+        public IntPtr UpdateCoreMLProviderOptions;
+        public IntPtr GetCoreMLProviderOptionsAsString;
+        public IntPtr ReleaseCoreMLProviderOptions;
         public IntPtr CreateAndRegisterAllocatorV2;
         public IntPtr RunAsync;
         public IntPtr UpdateTensorRTProviderOptionsWithValue;
@@ -329,6 +333,7 @@ namespace Microsoft.ML.OnnxRuntime
         public IntPtr SetDeterministicCompute;
         public IntPtr KernelContext_ParallelFor;
         public IntPtr SessionOptionsAppendExecutionProvider_OpenVINO_V2;
+        public IntPtr SessionOptionsAppendExecutionProvider_CoreML_V2;
         public IntPtr SessionOptionsAppendExecutionProvider_VitisAI;
         public IntPtr KernelContext_GetScratchBuffer;
         public IntPtr KernelInfoGetAllocator;
@@ -566,6 +571,8 @@ namespace Microsoft.ML.OnnxRuntime
             SessionOptionsAppendExecutionProvider = (DSessionOptionsAppendExecutionProvider)Marshal.GetDelegateForFunctionPointer(
                 api_.SessionOptionsAppendExecutionProvider,
                 typeof(DSessionOptionsAppendExecutionProvider));
+            SessionOptionsAppendExecutionProvider_CoreML_V2 = (DSessionOptionsAppendExecutionProvider_CoreML_V2)Marshal.GetDelegateForFunctionPointer(
+                api_.SessionOptionsAppendExecutionProvider_CoreML_V2, typeof(DSessionOptionsAppendExecutionProvider_CoreML_V2));
             OrtUpdateEnvWithCustomLogLevel = (DOrtUpdateEnvWithCustomLogLevel)Marshal.GetDelegateForFunctionPointer(api_.UpdateEnvWithCustomLogLevel, typeof(DOrtUpdateEnvWithCustomLogLevel));
             SessionOptionsAppendExecutionProvider_ROCM = (DSessionOptionsAppendExecutionProvider_ROCM)Marshal.GetDelegateForFunctionPointer(
                 api_.SessionOptionsAppendExecutionProvider_ROCM, typeof(DSessionOptionsAppendExecutionProvider_ROCM));
@@ -573,6 +580,10 @@ namespace Microsoft.ML.OnnxRuntime
             OrtUpdateROCMProviderOptions = (DOrtUpdateROCMProviderOptions)Marshal.GetDelegateForFunctionPointer(api_.UpdateROCMProviderOptions, typeof(DOrtUpdateROCMProviderOptions));
             OrtGetROCMProviderOptionsAsString = (DOrtGetROCMProviderOptionsAsString)Marshal.GetDelegateForFunctionPointer(api_.GetROCMProviderOptionsAsString, typeof(DOrtGetROCMProviderOptionsAsString));
             OrtReleaseROCMProviderOptions = (DOrtReleaseROCMProviderOptions)Marshal.GetDelegateForFunctionPointer(api_.ReleaseROCMProviderOptions, typeof(DOrtReleaseROCMProviderOptions));
+            OrtCreateCoreMLProviderOptions = (DOrtCreateCoreMLProviderOptions)Marshal.GetDelegateForFunctionPointer(api_.CreateCoreMLProviderOptions, typeof(DOrtCreateCoreMLProviderOptions));
+            OrtUpdateCoreMLProviderOptions = (DOrtUpdateCoreMLProviderOptions)Marshal.GetDelegateForFunctionPointer(api_.UpdateCoreMLProviderOptions, typeof(DOrtUpdateCoreMLProviderOptions));
+            OrtGetCoreMLProviderOptionsAsString = (DOrtGetCoreMLProviderOptionsAsString)Marshal.GetDelegateForFunctionPointer(api_.GetCoreMLProviderOptionsAsString, typeof(DOrtGetCoreMLProviderOptionsAsString));
+            OrtReleaseCoreMLProviderOptions = (DOrtReleaseCoreMLProviderOptions)Marshal.GetDelegateForFunctionPointer(api_.ReleaseCoreMLProviderOptions, typeof(DOrtReleaseCoreMLProviderOptions));
             OrtCreateAndRegisterAllocatorV2 = (DCreateAndRegisterAllocatorV2)Marshal.GetDelegateForFunctionPointer(api_.CreateAndRegisterAllocatorV2, typeof(DCreateAndRegisterAllocatorV2));
             OrtRunAsync = (DOrtRunAsync)Marshal.GetDelegateForFunctionPointer(api_.RunAsync, typeof(DOrtRunAsync));
             CreateLoraAdapter = (DCreateLoraAdapter)Marshal.GetDelegateForFunctionPointer(api_.CreateLoraAdapter,
@@ -796,6 +807,51 @@ namespace Microsoft.ML.OnnxRuntime
         [UnmanagedFunctionPointer(CallingConvention.Winapi)]
         public delegate void DOrtReleaseROCMProviderOptions(IntPtr /*(OrtROCMProviderOptions*)*/ rocmProviderOptionsInstance);
         public static DOrtReleaseROCMProviderOptions OrtReleaseROCMProviderOptions;
+
+        /// <summary>
+        /// Creates native OrtCoreMLProviderOptions instance
+        /// </summary>
+        /// <param name="coremlProviderOptionsInstance">(output) native instance of OrtCoreMLProviderOptions</param>
+        [UnmanagedFunctionPointer(CallingConvention.Winapi)]
+        public delegate IntPtr /* OrtStatus* */ DOrtCreateCoreMLProviderOptions(
+            out IntPtr /*(OrtCoreMLProviderOptions**)*/ coremlProviderOptionsInstance);
+        public static DOrtCreateCoreMLProviderOptions OrtCreateCoreMLProviderOptions;
+
+        /// <summary>
+        /// Updates native OrtCoreMLProviderOptions instance using given key/value pairs
+        /// </summary>
+        /// <param name="coremlProviderOptionsInstance">native instance of OrtCoreMLProviderOptions</param>
+        /// <param name="providerOptionsKeys">configuration keys of OrtCoreMLProviderOptions</param>
+        /// <param name="providerOptionsValues">configuration values of OrtCoreMLProviderOptions</param>
+        /// <param name="numKeys">number of configuration keys</param>
+        [UnmanagedFunctionPointer(CallingConvention.Winapi)]
+        public delegate IntPtr /* OrtStatus* */ DOrtUpdateCoreMLProviderOptions(
+            IntPtr /*(OrtCoreMLProviderOptions*)*/ coremlProviderOptionsInstance,
+            IntPtr[] /*(const char* const *)*/ providerOptionsKeys,
+            IntPtr[] /*(const char* const *)*/ providerOptionsValues,
+            UIntPtr /*(size_t)*/ numKeys);
+        public static DOrtUpdateCoreMLProviderOptions OrtUpdateCoreMLProviderOptions;
+
+        /// <summary>
+        /// Get native OrtCoreMLProviderOptions in serialized string
+        /// </summary>
+        /// <param name="coremlProviderOptionsInstance">native instance of OrtCoreMLProviderOptions</param>
+        /// <param name="allocator">instance of OrtAllocator</param>
+        /// <param name="ptr">is a UTF-8 null terminated string allocated using 'allocator'</param>
+        [UnmanagedFunctionPointer(CallingConvention.Winapi)]
+        public delegate IntPtr /* OrtStatus* */ DOrtGetCoreMLProviderOptionsAsString(
+            IntPtr /*(OrtCoreMLProviderOptions*)*/ coremlProviderOptionsInstance,
+            IntPtr /*(OrtAllocator*)*/ allocator,
+            out IntPtr /*(char**)*/ ptr);
+        public static DOrtGetCoreMLProviderOptionsAsString OrtGetCoreMLProviderOptionsAsString;
+
+        /// <summary>
+        /// Releases native OrtCoreMLProviderOptions instance
+        /// </summary>
+        /// <param name="coremlProviderOptionsInstance">native instance of OrtCoreMLProviderOptions to be released</param>
+        [UnmanagedFunctionPointer(CallingConvention.Winapi)]
+        public delegate void DOrtReleaseCoreMLProviderOptions(IntPtr /*(OrtCoreMLProviderOptions*)*/ coremlProviderOptionsInstance);
+        public static DOrtReleaseCoreMLProviderOptions OrtReleaseCoreMLProviderOptions;
 
 #endregion
 
@@ -1299,6 +1355,18 @@ namespace Microsoft.ML.OnnxRuntime
             UIntPtr /*(size_t)*/ numKeys);
 
         public static DSessionOptionsAppendExecutionProvider SessionOptionsAppendExecutionProvider;
+
+        /// <summary>
+        /// Append a CoreML EP instance (configured based on given provider options) to the native OrtSessionOptions instance
+        /// </summary>
+        /// <param name="options">Native OrtSessionOptions instance</param>
+        /// <param name="coremlProviderOptions">Native OrtCoreMLProviderOptions instance</param>
+        [UnmanagedFunctionPointer(CallingConvention.Winapi)]
+        public delegate IntPtr /*(OrtStatus*)*/ DSessionOptionsAppendExecutionProvider_CoreML_V2(
+            IntPtr /*(OrtSessionOptions*)*/ options,
+            IntPtr /*(const OrtCoreMLProviderOptions*)*/ coremlProviderOptions);
+
+        public static DSessionOptionsAppendExecutionProvider_CoreML_V2 SessionOptionsAppendExecutionProvider_CoreML_V2;
 
 #endregion
 
