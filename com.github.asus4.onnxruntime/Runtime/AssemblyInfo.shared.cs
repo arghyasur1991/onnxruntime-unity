@@ -9,6 +9,7 @@
 #elif UNITY_EDITOR_OSX || UNITY_STANDALONE_OSX
 #define __ENABLE_COREML__
 #endif
+
 #if __IOS__
 [assembly: System.Reflection.AssemblyMetadata ("IsTrimmable", "True")]
 #elif __ANDROID__

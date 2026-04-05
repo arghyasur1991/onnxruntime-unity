@@ -1,8 +1,8 @@
 {
   "name": "com.github.asus4.onnxruntime",
-  "version": "0.4.4",
+  "version": "0.5.0-ort1.24.4",
   "displayName": "ONNX Runtime",
-  "description": "ONNX Runtime Plugin for Unity",
+  "description": "ONNX Runtime Plugin for Unity (ORT 1.24.4, auto-downloads native libs)",
   "keywords": [
     "unity",
     "onnxruntime"
@@ -11,10 +11,10 @@
   "unityRelease": "0f1",
   "repository": {
     "type": "git",
-    "url": "https://github.com/asus4/onnxruntime-unity.git"
+    "url": "https://github.com/arghyasur1991/onnxruntime-unity.git"
   },
-  "documentationUrl": "https://github.com/asus4/onnxruntime-unity",
-  "changelogUrl": "https://github.com/asus4/onnxruntime-unity/releases",
+  "documentationUrl": "https://github.com/arghyasur1991/onnxruntime-unity",
+  "changelogUrl": "https://github.com/arghyasur1991/onnxruntime-unity/releases",
   "licensesUrl": "https://github.com/asus4/onnxruntime-unity/blob/main/com.github.asus4.onnxruntime/LICENSE",
   "author": {
     "name": "Koki Ibukuro",

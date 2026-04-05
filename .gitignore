@@ -9,3 +9,4 @@
 # Ignore build files
 *.log
 # *.tgz
+.github/workflows/

@@ -1,6 +1,6 @@
 #!/bin/bash -xe
 
-PROJCET_DIR="$(cd "$(dirname "$0")/.." && pwd -P)"
+PROJECT_DIR="$(cd "$(dirname "$0")/.." && pwd -P)"
 DEFINES_FILE="$PROJECT_DIR/scripts/UnityDefines.cs"
 SRC_ROOT="$PROJECT_DIR/com.github.asus4.onnxruntime/Runtime"
 
