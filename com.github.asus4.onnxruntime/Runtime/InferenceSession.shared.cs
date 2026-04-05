@@ -274,7 +274,7 @@ namespace Microsoft.ML.OnnxRuntime
             if (numInputs == UIntPtr.Zero)
             {
                 // OrtSessionGetEpDeviceForInputs expects numInputs > 0, otherwise it is an invalid arg.
-                return [];
+                return Array.Empty<OrtEpDevice>();
             }
 
             var epDevicesForInputs = new IntPtr[(ulong)numInputs];
