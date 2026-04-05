@@ -12,5 +12,7 @@ concat_defines() {
 concat_defines "${SRC_ROOT}/AssemblyInfo.shared.cs"
 concat_defines "${SRC_ROOT}/NativeMethods.shared.cs"
 concat_defines "${SRC_ROOT}/SessionOptions.shared.cs"
+concat_defines "${SRC_ROOT}/NativeCompileApiMethods.shared.cs"
+concat_defines "${SRC_ROOT}/Training/NativeTrainingMethods.shared.cs"
 
 echo "Done."

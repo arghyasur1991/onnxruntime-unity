@@ -1,4 +1,5 @@
 // Modified for Unity
+#define NETSTANDARD2_0
 #if UNITY_ANDROID && !UNITY_EDITOR
 #define __ANDROID__
 #define __MOBILE__

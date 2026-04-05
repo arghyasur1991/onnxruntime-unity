@@ -1,4 +1,7 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Modified for Unity
+#define NETSTANDARD2_0
+
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
 using System;
