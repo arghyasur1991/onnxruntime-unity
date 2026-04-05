@@ -9,8 +9,8 @@ namespace Microsoft.ML.OnnxRuntime.Editor
 {
     /// <summary>
     /// Auto-downloads ONNX Runtime native libraries from NuGet on first load.
-    /// Keeps the git repo lightweight (no binaries committed) while providing
-    /// a seamless setup experience for consumers.
+    /// Downloads into Assets/Plugins/OnnxRuntime/ (writable) rather than the
+    /// package's own Plugins/ directory (which is immutable for git URL packages).
     /// </summary>
     [InitializeOnLoad]
     public static class OrtNativeBootstrap
@@ -18,7 +18,7 @@ namespace Microsoft.ML.OnnxRuntime.Editor
         const string ORT_VERSION = "1.24.4";
         const string NUGET_URL = "https://www.nuget.org/api/v2/package/Microsoft.ML.OnnxRuntime/" + ORT_VERSION;
         const string SESSION_KEY = "OrtNativeBootstrap_Checked_" + ORT_VERSION;
-        const string PACKAGE_PATH = "Packages/com.github.asus4.onnxruntime";
+        const string PLUGINS_ROOT = "Assets/Plugins/OnnxRuntime";
 
         static OrtNativeBootstrap()
         {
@@ -31,12 +31,7 @@ namespace Microsoft.ML.OnnxRuntime.Editor
 
         static void CheckAndDownload()
         {
-            string pluginsPath = Path.GetFullPath(Path.Combine(PACKAGE_PATH, "Plugins"));
-            if (!Directory.Exists(pluginsPath))
-            {
-                Debug.LogWarning("[OrtNativeBootstrap] Plugins directory not found at: " + pluginsPath);
-                return;
-            }
+            string pluginsPath = Path.GetFullPath(PLUGINS_ROOT);
 
             string sentinel = Path.Combine(pluginsPath, "macOS", "arm64", "libonnxruntime.dylib");
             if (File.Exists(sentinel))
@@ -55,6 +50,7 @@ namespace Microsoft.ML.OnnxRuntime.Editor
             if (File.Exists(nupkgPath) && Directory.Exists(extractDir))
             {
                 CopyNativeLibs(extractDir, pluginsPath);
+                ConfigurePluginImporters();
                 return;
             }
 
@@ -105,12 +101,16 @@ namespace Microsoft.ML.OnnxRuntime.Editor
 
                     EditorUtility.DisplayProgressBar(
                         "ONNX Runtime Setup",
-                        "Copying native libraries to package...",
+                        "Copying native libraries to project...",
                         0.9f);
 
                     CopyNativeLibs(extractDir, pluginsPath);
 
-                    Debug.Log($"[OrtNativeBootstrap] ONNX Runtime {ORT_VERSION} native libraries installed successfully.");
+                    AssetDatabase.Refresh(ImportAssetOptions.ForceSynchronousImport);
+
+                    ConfigurePluginImporters();
+
+                    Debug.Log($"[OrtNativeBootstrap] ONNX Runtime {ORT_VERSION} native libraries installed to {PLUGINS_ROOT}.");
                 }
                 catch (Exception e)
                 {
@@ -120,7 +120,6 @@ namespace Microsoft.ML.OnnxRuntime.Editor
                 finally
                 {
                     EditorUtility.ClearProgressBar();
-                    AssetDatabase.Refresh();
                 }
             }
 
@@ -169,6 +168,111 @@ namespace Microsoft.ML.OnnxRuntime.Editor
                 Directory.CreateDirectory(Path.GetDirectoryName(iosDst));
                 ZipFile.ExtractToDirectory(iosXcfZip, Path.Combine(pluginsPath, "iOS~"));
             }
+        }
+
+        static void ConfigurePluginImporters()
+        {
+            ConfigurePlugin("Android/onnxruntime.aar", imp =>
+            {
+                imp.SetCompatibleWithAnyPlatform(false);
+                imp.SetCompatibleWithPlatform(BuildTarget.Android, true);
+                imp.SetCompatibleWithEditor(false);
+                imp.SetPlatformData(BuildTarget.Android, "CPU", "ARMv7");
+                imp.isPreloaded = true;
+            });
+
+            ConfigurePlugin("macOS/arm64/libonnxruntime.dylib", imp =>
+            {
+                imp.SetCompatibleWithAnyPlatform(false);
+                imp.SetCompatibleWithEditor(true);
+                imp.SetEditorData("CPU", "ARM64");
+                imp.SetEditorData("OS", "OSX");
+                imp.SetCompatibleWithPlatform(BuildTarget.StandaloneOSX, true);
+                imp.SetPlatformData(BuildTarget.StandaloneOSX, "CPU", "ARM64");
+                imp.isPreloaded = true;
+            });
+
+            ConfigurePlugin("macOS/x64/libonnxruntime.dylib", imp =>
+            {
+                imp.SetCompatibleWithAnyPlatform(false);
+                imp.SetCompatibleWithEditor(true);
+                imp.SetEditorData("CPU", "x86_64");
+                imp.SetEditorData("OS", "OSX");
+                imp.SetCompatibleWithPlatform(BuildTarget.StandaloneOSX, true);
+                imp.SetPlatformData(BuildTarget.StandaloneOSX, "CPU", "x86_64");
+                imp.isPreloaded = true;
+            });
+
+            ConfigurePlugin("Windows/x64/onnxruntime.dll", imp =>
+            {
+                imp.SetCompatibleWithAnyPlatform(false);
+                imp.SetCompatibleWithEditor(true);
+                imp.SetEditorData("CPU", "x86_64");
+                imp.SetEditorData("OS", "Windows");
+                imp.SetCompatibleWithPlatform(BuildTarget.StandaloneWindows64, true);
+                imp.SetPlatformData(BuildTarget.StandaloneWindows64, "CPU", "x86_64");
+            });
+
+            ConfigurePlugin("Windows/x64/onnxruntime_providers_shared.dll", imp =>
+            {
+                imp.SetCompatibleWithAnyPlatform(false);
+                imp.SetCompatibleWithEditor(true);
+                imp.SetEditorData("CPU", "x86_64");
+                imp.SetEditorData("OS", "Windows");
+                imp.SetCompatibleWithPlatform(BuildTarget.StandaloneWindows64, true);
+                imp.SetPlatformData(BuildTarget.StandaloneWindows64, "CPU", "x86_64");
+            });
+
+            ConfigurePlugin("Windows/arm64/onnxruntime.dll", imp =>
+            {
+                imp.SetCompatibleWithAnyPlatform(false);
+                imp.SetCompatibleWithEditor(true);
+                imp.SetEditorData("CPU", "ARM64");
+                imp.SetEditorData("OS", "Windows");
+                imp.SetCompatibleWithPlatform(BuildTarget.StandaloneWindows64, true);
+                imp.SetPlatformData(BuildTarget.StandaloneWindows64, "CPU", "ARM64");
+            });
+
+            ConfigurePlugin("Windows/arm64/onnxruntime_providers_shared.dll", imp =>
+            {
+                imp.SetCompatibleWithAnyPlatform(false);
+                imp.SetCompatibleWithEditor(true);
+                imp.SetEditorData("CPU", "ARM64");
+                imp.SetEditorData("OS", "Windows");
+                imp.SetCompatibleWithPlatform(BuildTarget.StandaloneWindows64, true);
+                imp.SetPlatformData(BuildTarget.StandaloneWindows64, "CPU", "ARM64");
+            });
+
+            ConfigurePlugin("Linux/x64/libonnxruntime.so", imp =>
+            {
+                imp.SetCompatibleWithAnyPlatform(false);
+                imp.SetCompatibleWithEditor(true);
+                imp.SetEditorData("CPU", "x86_64");
+                imp.SetEditorData("OS", "Linux");
+                imp.SetCompatibleWithPlatform(BuildTarget.StandaloneLinux64, true);
+                imp.SetPlatformData(BuildTarget.StandaloneLinux64, "CPU", "AnyCPU");
+            });
+
+            ConfigurePlugin("Linux/x64/libonnxruntime_providers_shared.so", imp =>
+            {
+                imp.SetCompatibleWithAnyPlatform(false);
+                imp.SetCompatibleWithEditor(true);
+                imp.SetEditorData("CPU", "x86_64");
+                imp.SetEditorData("OS", "Linux");
+                imp.SetCompatibleWithPlatform(BuildTarget.StandaloneLinux64, true);
+                imp.SetPlatformData(BuildTarget.StandaloneLinux64, "CPU", "AnyCPU");
+            });
+        }
+
+        static void ConfigurePlugin(string relativePath, Action<PluginImporter> configure)
+        {
+            string assetPath = PLUGINS_ROOT + "/" + relativePath;
+            var importer = AssetImporter.GetAtPath(assetPath) as PluginImporter;
+            if (importer == null)
+                return;
+
+            configure(importer);
+            importer.SaveAndReimport();
         }
 
         static void CopyFile(string src, string dst)
