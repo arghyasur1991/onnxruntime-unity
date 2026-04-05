@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
+using AOT;
 
 namespace Microsoft.ML.OnnxRuntime
 {
@@ -166,6 +167,7 @@ namespace Microsoft.ML.OnnxRuntime
         /// <param name="logid"></param>
         /// <param name="codeLocation"></param>
         /// <param name="message"></param>
+        [MonoPInvokeCallback(typeof(DOrtLoggingFunctionInternal))]
         private static void LoggingFunctionThunk(IntPtr param,
                 IntPtr severity,
                 IntPtr /* utf-8 const char* */ category,
